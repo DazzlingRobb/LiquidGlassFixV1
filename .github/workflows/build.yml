@@ -6,13 +6,16 @@ on:
 jobs:
   build:
     runs-on: macos-14
+    env:
+      THEOS: ${{ github.workspace }}/theos
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
 
       - name: 安装Theos
         run: |
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
-          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+          git clone --recursive https://github.com/theos/theos.git $THEOS
+          brew install ldid
 
       - name: 编译dylib
         run: |
