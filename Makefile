@@ -1,5 +1,5 @@
 ARCHS = arm64 arm64e
-TARGET = iphone:clang:16.0:16.0
+TARGET = iphone:clang:latest:16.0
 INSTALL_TARGET_PROCESSES = WeChat
 
 include $(THEOS)/makefiles/common.mk
