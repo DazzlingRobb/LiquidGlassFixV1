@@ -18,20 +18,14 @@ static UIView* findGlassViewInView(UIView *superview) {
     return nil;
 }
 
-@interface UIViewController (LiquidGlassFix)
-- (void)fixGlassViewIfNeeded;
-@end
-
-@implementation UIViewController (LiquidGlassFix)
-
-- (void)fixGlassViewIfNeeded {
+static void fixGlassViewForController(UIViewController *vc) {
     BOOL masterEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WCLiquidGlassMasterEnabled"];
     if (!masterEnabled) return;
 
-    UIView *glassView = findGlassViewInView(self.view);
+    UIView *glassView = findGlassViewInView(vc.view);
     if (!glassView) return;
 
-    glassView.frame = self.view.bounds;
+    glassView.frame = vc.view.bounds;
     glassView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
     glassView.clipsToBounds = NO;
@@ -45,26 +39,24 @@ static UIView* findGlassViewInView(UIView *superview) {
         glassView.superview.layer.masksToBounds = NO;
     }
 
-    [self.view sendSubviewToBack:glassView];
+    [vc.view sendSubviewToBack:glassView];
 }
-
-@end
 
 %hook WCProfileInfoViewController
 
 - (void)viewDidLayoutSubviews {
     %orig;
-    [self fixGlassViewIfNeeded];
+    fixGlassViewForController((UIViewController *)self);
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     %orig;
-    [self fixGlassViewIfNeeded];
+    fixGlassViewForController((UIViewController *)self);
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     %orig;
-    [self fixGlassViewIfNeeded];
+    fixGlassViewForController((UIViewController *)self);
 }
 
 %end
