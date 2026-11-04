@@ -18,7 +18,7 @@ static UIView* findGlassViewInView(UIView *superview) {
     return nil;
 }
 
-static void fixGlassViewForController(UIViewController *vc) {
+static void applyGlassFix(UIViewController *vc) {
     BOOL masterEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WCLiquidGlassMasterEnabled"];
     if (!masterEnabled) return;
 
@@ -46,17 +46,17 @@ static void fixGlassViewForController(UIViewController *vc) {
 
 - (void)viewDidLayoutSubviews {
     %orig;
-    fixGlassViewForController((UIViewController *)self);
+    applyGlassFix((UIViewController *)self);
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     %orig;
-    fixGlassViewForController((UIViewController *)self);
+    applyGlassFix((UIViewController *)self);
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     %orig;
-    fixGlassViewForController((UIViewController *)self);
+    applyGlassFix((UIViewController *)self);
 }
 
 %end
