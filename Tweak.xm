@@ -23,16 +23,17 @@ static UIView* findGlassViewInView(UIView *superview) {
     BOOL masterEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WCLiquidGlassMasterEnabled"];
     if (!masterEnabled) return;
     
-    UIView *glassView = findGlassViewInView(self.view);
+    UIViewController *vc = (UIViewController *)self;
+    UIView *glassView = findGlassViewInView(vc.view);
     if (!glassView) return;
     
-    CGRect fixedFrame = self.view.bounds;
+    CGRect fixedFrame = vc.view.bounds;
     fixedFrame.origin.y = 0;
-    fixedFrame.size.height = self.view.bounds.size.height;
+    fixedFrame.size.height = vc.view.bounds.size.height;
     
     if (!CGRectEqualToRect(glassView.frame, fixedFrame)) {
         glassView.frame = fixedFrame;
-        [self.view sendSubviewToBack:glassView];
+        [vc.view sendSubviewToBack:glassView];
     }
     
     glassView.superview.clipsToBounds = NO;
@@ -45,12 +46,13 @@ static UIView* findGlassViewInView(UIView *superview) {
     BOOL masterEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WCLiquidGlassMasterEnabled"];
     if (!masterEnabled) return;
     
-    UIView *glassView = findGlassViewInView(self.view);
+    UIViewController *vc = (UIViewController *)self;
+    UIView *glassView = findGlassViewInView(vc.view);
     if (!glassView) return;
     
     CGRect frame = glassView.frame;
     frame.origin.y = 0;
-    frame.size.height = self.view.bounds.size.height;
+    frame.size.height = vc.view.bounds.size.height;
     glassView.frame = frame;
 }
 
