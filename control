@@ -1,0 +1,8 @@
+Package: com.yourname.liquidglassfixv1
+Name: LiquidGlassFixV1
+Version: 1.0
+Architecture: iphoneos-arm64e
+Description: 微信液态玻璃我页面修复补丁
+Maintainer: Fix
+Section: Tweaks
+Depends: mobilesubstrate
