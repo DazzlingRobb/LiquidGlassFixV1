@@ -1,13 +1,16 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
-#define kGlassViewClassPrefix @"CCLiquidGlass"
-
 static UIView* findGlassViewInView(UIView *superview) {
     if (!superview) return nil;
-    if ([NSStringFromClass(superview.class) containsString:kGlassViewClassPrefix]) {
+
+    NSString *name = NSStringFromClass(superview.class);
+    if ([name containsString:@"CCLiquidGlass"] ||
+        [name containsString:@"LiquidGlass"] ||
+        [name containsString:@"GlassView"]) {
         return superview;
     }
+
     for (UIView *subview in superview.subviews) {
         UIView *result = findGlassViewInView(subview);
         if (result) return result;
@@ -15,45 +18,53 @@ static UIView* findGlassViewInView(UIView *superview) {
     return nil;
 }
 
+@interface UIViewController (LiquidGlassFix)
+- (void)fixGlassViewIfNeeded;
+@end
+
+@implementation UIViewController (LiquidGlassFix)
+
+- (void)fixGlassViewIfNeeded {
+    BOOL masterEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WCLiquidGlassMasterEnabled"];
+    if (!masterEnabled) return;
+
+    UIView *glassView = findGlassViewInView(self.view);
+    if (!glassView) return;
+
+    glassView.frame = self.view.bounds;
+    glassView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+    glassView.clipsToBounds = NO;
+    glassView.layer.masksToBounds = NO;
+    glassView.layer.contentsScale = UIScreen.mainScreen.scale;
+    glassView.layer.rasterizationScale = UIScreen.mainScreen.scale;
+    glassView.layer.shouldRasterize = NO;
+
+    if (glassView.superview) {
+        glassView.superview.clipsToBounds = NO;
+        glassView.superview.layer.masksToBounds = NO;
+    }
+
+    [self.view sendSubviewToBack:glassView];
+}
+
+@end
+
 %hook WCProfileInfoViewController
 
 - (void)viewDidLayoutSubviews {
     %orig;
-    
-    BOOL masterEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WCLiquidGlassMasterEnabled"];
-    if (!masterEnabled) return;
-    
-    UIViewController *vc = (UIViewController *)self;
-    UIView *glassView = findGlassViewInView(vc.view);
-    if (!glassView) return;
-    
-    CGRect fixedFrame = vc.view.bounds;
-    fixedFrame.origin.y = 0;
-    fixedFrame.size.height = vc.view.bounds.size.height;
-    
-    if (!CGRectEqualToRect(glassView.frame, fixedFrame)) {
-        glassView.frame = fixedFrame;
-        [vc.view sendSubviewToBack:glassView];
-    }
-    
-    glassView.superview.clipsToBounds = NO;
-    glassView.clipsToBounds = NO;
+    [self fixGlassViewIfNeeded];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    %orig;
+    [self fixGlassViewIfNeeded];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     %orig;
-    
-    BOOL masterEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WCLiquidGlassMasterEnabled"];
-    if (!masterEnabled) return;
-    
-    UIViewController *vc = (UIViewController *)self;
-    UIView *glassView = findGlassViewInView(vc.view);
-    if (!glassView) return;
-    
-    CGRect frame = glassView.frame;
-    frame.origin.y = 0;
-    frame.size.height = vc.view.bounds.size.height;
-    glassView.frame = frame;
+    [self fixGlassViewIfNeeded];
 }
 
 %end
