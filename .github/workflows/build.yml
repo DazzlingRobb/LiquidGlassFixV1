@@ -1,0 +1,26 @@
+name: 编译补丁dylib
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装Theos
+        run: |
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+
+      - name: 编译dylib
+        run: |
+          make clean
+          make
+
+      - name: 上传成品
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiquidGlassFixV1.dylib
+          path: .theos/obj/debug/LiquidGlassFixV1.dylib
