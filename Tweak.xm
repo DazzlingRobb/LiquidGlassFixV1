@@ -1,22 +1,19 @@
-#import <UIKit/UIKit.h>
-
-%hook UIViewController
-
-- (void)viewDidAppear:(BOOL)animated {
+// 首页控制器
+%hook NewMainFrameViewController
+- (void)initTableHeaderView {
     %orig;
-    
-    NSString *className = NSStringFromClass(self.class);
-    // 只匹配微信原生业务控制器（类名均以 WC 开头），跳过所有系统类
-    if (![className hasPrefix:@"WC"]) return;
-    
-    // 跳过导航栏、标签栏等容器类，只显示真正的内容页面
-    if ([className containsString:@"Nav"] || 
-        [className containsString:@"TabBar"] ||
-        [className containsString:@"Container"]) return;
-
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"页面控制器类名" message:className preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil]];
-    [self presentViewController:alert animated:YES completion:nil];
+    // 在这里重新给searchBar加上液态玻璃效果
 }
+- (void)setSearchBarToTableHeaderView {
+    %orig;
+    // 修复搜索框毛玻璃
+}
+%end
 
+// 搜索栏本身
+%hook WCSearchBar
+- (void)setUnactiveStyle {
+    %orig;
+    // 修复非激活状态样式，强制玻璃效果
+}
 %end
